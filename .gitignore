@@ -13,3 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Ignore Gradle build files (requested by user)
+build.gradle.kts
+app/build.gradle.kts
