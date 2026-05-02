@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.SmartCityCitizen" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/primary_dark</item>
+    </style>
+    <!-- Colors referenced in theme (add to colors.xml) -->
+    <color name="primary">#1565C0</color>
+    <color name="primary_dark">#0D47A1</color>
+    <color name="accent">#FFA726</color>
+</resources>
