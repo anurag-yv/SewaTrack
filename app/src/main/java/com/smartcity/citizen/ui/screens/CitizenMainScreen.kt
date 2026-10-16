@@ -237,8 +237,16 @@ fun CitizenMainScreen(onLogout: () -> Unit = {}) {
                 startDestination = Screen.Home.route,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                composable(Screen.Home.route) { HomeScreen(navController = navController) }
-                composable(Screen.Report.route) { ReportScreen(navController = navController) }
+                composable(Screen.Home.route) {
+
+                    HomeScreen(
+                        onNavigateToScan = { navController.navigate(Screen.Report.route) },
+                        onNavigateToGuide = { navController.navigate(Screen.Track.route) },
+                        onNavigateToLocator = { navController.navigate(Screen.Track.route) },
+                        onNavigateToHistory = { navController.navigate(Screen.Track.route) }
+                    )
+                }
+
                 composable(Screen.Track.route) { TrackScreen(navController = navController) }
                 composable(Screen.Settings.route) { ProfileScreen(navController = navController, onLogout = onLogout) }
                 composable(

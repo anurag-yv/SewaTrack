@@ -37,6 +37,17 @@ private val BlueAccent = Color(0xFF2196F3)
 
 
 
+data class EmployeeStats(
+    val id: String,
+    val name: String,
+    val email: String,
+    val totalAssigned: Int,
+    val submitted: Int,
+    val inProgress: Int,
+    val resolved: Int,
+    val complaints: List<Complaint>
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminAnalyticsScreen() {

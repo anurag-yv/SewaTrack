@@ -271,8 +271,9 @@ fun ReportScreen(navController: androidx.navigation.NavHostController) {
                         AsyncImage(model = imageUri, contentDescription = "Selected photo",
                             modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp)), contentScale = ContentScale.Crop)
                         IconButton(onClick = { imageUri = null; imageBase64 = null }, modifier = Modifier.align(Alignment.TopEnd)) {
-                            Icon(Icons.Filled.Close, "Remove", tint = Error)
+                            Icon(Icons.Filled.Close, "Remove", tint = Color.Red)
                         }
+
                     }
                     // Optimised AI classification – runs on background thread
                     TextButton(onClick = {
@@ -319,8 +320,9 @@ fun ReportScreen(navController: androidx.navigation.NavHostController) {
             shape = RoundedCornerShape(12.dp),
             leadingIcon = { Icon(Icons.Filled.Description, null) },
             supportingText = { Text("Describe the issue or use voice") },
-            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Primary.copy(alpha = 0.4f))
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SortItPrimary, unfocusedBorderColor = SortItPrimary.copy(alpha = 0.4f))
         )
+
 
         OutlinedButton(onClick = {
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -332,10 +334,11 @@ fun ReportScreen(navController: androidx.navigation.NavHostController) {
         }
 
         // Location card
-        Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Background)) {
+        Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = SortItBackground)) {
             Column(modifier = Modifier.padding(12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.LocationOn, null, tint = Primary)
+                    Icon(Icons.Filled.LocationOn, null, tint = SortItPrimary)
+
                     Spacer(Modifier.width(8.dp))
                     if (automaticLocation.contains("Lat:") && automaticLocation.contains("Lng:")) {
                         Text(

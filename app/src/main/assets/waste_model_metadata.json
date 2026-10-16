@@ -1,0 +1,27 @@
+{
+  "model_name": "SortIt-Campus-Waste-Classifier",
+  "version": "1.0.0",
+  "framework": "TensorFlow Lite / LiteRT",
+  "input_shape": [1, 224, 224, 3],
+  "input_type": "FLOAT32",
+  "normalization": "[0.0, 1.0]",
+  "uncertainty_threshold": 0.60,
+  "output_classes": [
+    "ORGANIC_WET",
+    "RECYCLABLE_DRY",
+    "PAPER_CARDBOARD",
+    "PLASTIC_METAL",
+    "GLASS",
+    "E_WASTE",
+    "HAZARDOUS_SANITARY"
+  ],
+  "disposal_bins": {
+    "ORGANIC_WET": "Green Bin",
+    "RECYCLABLE_DRY": "Blue Bin",
+    "PAPER_CARDBOARD": "Blue/White Bin",
+    "PLASTIC_METAL": "Blue/Yellow Bin",
+    "GLASS": "Teal Bin",
+    "E_WASTE": "Red Bin / Campus Tech Hub",
+    "HAZARDOUS_SANITARY": "Yellow / Biohazard Bin"
+  }
+}

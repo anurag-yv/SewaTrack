@@ -16,13 +16,14 @@ class SmartCityApp : Application() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 NotificationHelper.CHANNEL_ID,
-                "Complaint Updates",
+                "SortIt Eco Reminders",
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
-                description = "Notifications for complaint status changes"
+                description = "Daily sustainability prompts and waste sorting updates"
             }
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(channel)
         }
     }
+
 }

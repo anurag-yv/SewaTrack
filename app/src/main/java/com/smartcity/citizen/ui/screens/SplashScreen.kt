@@ -1,80 +1,73 @@
 package com.smartcity.citizen.ui.screens
 
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Recycling
+import androidx.compose.material.icons.outlined.Eco
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.ui.unit.sp
+import com.smartcity.citizen.ui.theme.SortItBackground
+import com.smartcity.citizen.ui.theme.SortItPrimary
+import com.smartcity.citizen.ui.theme.SortItPrimaryLight
+import com.smartcity.citizen.ui.theme.SortItSecondary
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.tasks.await
-import kotlin.random.Random
 
+/**
+ * SortIt First-Launch Animated Splash Screen
+ * Fulfills User Requirement: "on opening app first screen should be name SortIt with logo then after other pages"
+ * Fulfills CSE226 Unit I: Compose Animation APIs (animateFloatAsState, infiniteTransition)
+ */
 @Composable
 fun SplashScreen(
-    onDestinationReady: (String) -> Unit
+    onSplashComplete: () -> Unit
 ) {
-    val iconScale by animateFloatAsState(
-        targetValue = 1f,
-        animationSpec = tween(700, easing = EaseOutCubic),
-        label = "iconScale"
+    var startAnimation by remember { mutableStateOf(false) }
+
+    val logoScale by animateFloatAsState(
+        targetValue = if (startAnimation) 1f else 0.5f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "LogoScale"
     )
-    val textAlpha by animateFloatAsState(
-        targetValue = 1f,
-        animationSpec = tween(800, easing = FastOutSlowInEasing),
-        label = "textAlpha"
+
+    val contentAlpha by animateFloatAsState(
+        targetValue = if (startAnimation) 1f else 0f,
+        animationSpec = tween(durationMillis = 800),
+        label = "ContentAlpha"
     )
-    val textOffsetY by animateFloatAsState(
-        targetValue = 0f,
-        animationSpec = tween(800, easing = FastOutSlowInEasing),
-        label = "textOffsetY"
-    )
-    val progress by animateFloatAsState(
-        targetValue = 1f,
-        animationSpec = tween(durationMillis = 3000),
-        label = "progress"
+
+    // Gentle infinite breathing ring
+    val infiniteTransition = rememberInfiniteTransition(label = "PulseTransition")
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.08f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "PulseScale"
     )
 
     LaunchedEffect(Unit) {
-        delay(3000)
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        val destination = if (currentUser == null) {
-            "login"
-        } else {
-            try {
-                val uid = currentUser.uid
-                val doc = FirebaseFirestore.getInstance().collection("users").document(uid).get().await()
-                if (!doc.exists()) {
-                    FirebaseAuth.getInstance().signOut()
-                    "register"
-                } else {
-                    val role = doc.getString("role") ?: "citizen"
-                    when (role) {
-                        "admin" -> "admin_dashboard"
-                        "employee" -> "employee_dashboard"
-                        else -> "citizen_main"
-                    }
-                }
-            } catch (e: Exception) {
-                "login"
-            }
-        }
-        onDestinationReady(destination)
+        startAnimation = true
+        delay(2200) // 2.2s splash duration
+        onSplashComplete()
     }
 
     Box(
@@ -83,139 +76,127 @@ fun SplashScreen(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFF5F5F5),
-                        Color(0xFFE0E0E0)
+                        SortItBackground,
+                        Color(0xFFE8F8F0),
+                        Color(0xFFD1F2E0)
                     )
                 )
-            )
+            ),
+        contentAlignment = Alignment.Center
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            drawSkyline(baseY = size.height * 0.75f)
-        }
-
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(24.dp)
         ) {
-            Canvas(
+            // Animated Glowing Outer Ring
+            Box(
                 modifier = Modifier
-                    .size(100.dp)
-                    .scale(iconScale)
+                    .size(140.dp)
+                    .scale(pulseScale)
+                    .clip(CircleShape)
+                    .background(SortItPrimaryLight.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
             ) {
-                drawCenteredCityIcon()
-            }
-            // Zero spacing between icon and title
-            Text(
-                text = "SewaTrack",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF424242),
-                modifier = Modifier
-                    .graphicsLayer(alpha = textAlpha)
-                    .offset(y = (textOffsetY * 16).dp),
-                textAlign = TextAlign.Center
-            )
-            // Zero spacing between title and subtitle
-            Text(
-                text = "Connect. Report. Improve.",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color(0xFF616161),
-                modifier = Modifier
-                    .graphicsLayer(alpha = textAlpha)
-                    .offset(y = (textOffsetY * 12).dp),
-                textAlign = TextAlign.Center
-            )
-        }
-
-        LinearProgressIndicator(
-            progress = { progress },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(3.dp)
-                .align(Alignment.BottomCenter),
-            color = Color(0xFF757575),
-            trackColor = Color(0xFFBDBDBD)
-        )
-    }
-}
-
-// Perfectly centered skyline
-private fun DrawScope.drawSkyline(baseY: Float) {
-    val buildingWidths = listOf(40f, 70f, 55f, 90f, 65f, 80f, 50f)
-    val totalBuildingWidth = buildingWidths.sum()
-    val gapCount = buildingWidths.size + 1
-    val gap = (size.width - totalBuildingWidth) / gapCount
-
-    var x = gap
-    buildingWidths.forEach { width ->
-        val height = 100f + Random.nextFloat() * 100f
-        val buildingColor = Color(0xFFBDBDBD).copy(alpha = 0.25f)
-        drawRect(
-            color = buildingColor,
-            topLeft = Offset(x, baseY - height),
-            size = Size(width, height)
-        )
-        if (width > 20f) {
-            for (row in 0 until 4) {
-                for (col in 0 until (width / 12).toInt()) {
-                    if ((col + row) % 2 == 0) {
-                        drawRect(
-                            color = Color(0xFF757575).copy(alpha = 0.2f),
-                            topLeft = Offset(
-                                x + col * 14f + 6f,
-                                baseY - height + row * 18f + 10f
-                            ),
-                            size = Size(8f, 12f)
-                        )
-                    }
+                // Main Logo Badge
+                Box(
+                    modifier = Modifier
+                        .size(108.dp)
+                        .scale(logoScale)
+                        .clip(CircleShape)
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(SortItPrimaryLight, SortItPrimary, SortItSecondary)
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Recycling,
+                        contentDescription = "SortIt Logo",
+                        tint = Color.White,
+                        modifier = Modifier.size(62.dp)
+                    )
                 }
             }
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            // App Name Branding
+            Text(
+                text = "SortIt",
+                style = MaterialTheme.typography.displaySmall,
+                fontWeight = FontWeight.ExtraBold,
+                color = SortItPrimary,
+                letterSpacing = 1.sp,
+                modifier = Modifier.scale(if (startAnimation) 1f else 0.8f)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Tagline
+            Text(
+                text = "Smart Campus Waste Segregation",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // University Institutional Identity
+            Surface(
+                color = SortItPrimary.copy(alpha = 0.12f),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Eco,
+                        contentDescription = null,
+                        tint = SortItPrimary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = "Lovely Professional University (LPU)",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = SortItPrimary
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            // Progress Indicator
+            CircularProgressIndicator(
+                color = SortItPrimary,
+                trackColor = SortItPrimary.copy(alpha = 0.2f),
+                modifier = Modifier.size(32.dp),
+                strokeWidth = 3.dp
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Text(
+                text = "Initializing AI & Campus Sensor Network...",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
         }
-        x += width + gap
+
+        // Bottom Footer
+        Text(
+            text = "CSE226 • Android Application Deployment",
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.Gray,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 24.dp)
+        )
     }
-}
-
-// Draws the city icon perfectly centered inside the 100dp canvas
-private fun DrawScope.drawCenteredCityIcon() {
-    // Logical size: 200x200 (centered)
-    val logicalSize = 200f
-    val scale = size.width / logicalSize  // canvas is square (100dp)
-    val centerX = size.width / 2f
-    val centerY = size.height / 2f
-
-    // Transform from logical coordinates (0..200) to actual canvas coordinates
-    fun x(logicalX: Float) = centerX + (logicalX - logicalSize / 2) * scale
-    fun y(logicalY: Float) = centerY + (logicalY - logicalSize / 2) * scale
-
-    val buildingColor = Color(0xFF424242)
-
-    // Left building (logical coordinates: x 60..100, y 60..150)
-    val leftPath = Path().apply {
-        moveTo(x(60f), y(150f))
-        lineTo(x(60f), y(60f))
-        lineTo(x(100f), y(60f))
-        lineTo(x(100f), y(150f))
-        close()
-    }
-    // Right building (logical: x 120..160, y 30..150)
-    val rightPath = Path().apply {
-        moveTo(x(120f), y(150f))
-        lineTo(x(120f), y(30f))
-        lineTo(x(160f), y(30f))
-        lineTo(x(160f), y(150f))
-        close()
-    }
-
-    drawPath(leftPath, color = buildingColor)
-    drawPath(rightPath, color = buildingColor.copy(alpha = 0.8f))
-
-    // Yellow circle inside left building (logical: center at 80, 90)
-    drawCircle(
-        color = Color(0xFFFFD54F),
-        radius = 14f * scale,
-        center = Offset(x(80f), y(90f))
-    )
 }

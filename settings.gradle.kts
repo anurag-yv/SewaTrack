@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SmartCityCitizen"
+rootProject.name = "SortIt"
 include(":app")
  
